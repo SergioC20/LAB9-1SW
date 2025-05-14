@@ -3,7 +3,7 @@ name: Actualizar Feature Flag
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   update-feature-flag:
@@ -13,18 +13,10 @@ jobs:
     - name: Checkout código
       uses: actions/checkout@v3
 
-    - name: Activar/Desactivar la versión mejorada
+    - name: Activar la versión 2.0 mejorada
       run: |
-        # Determinar el valor del flag
-        if [ "${{ github.event_name }}" == "push" ]; then
-          flag_value="true"
-        else
-          flag_value="false"
-        fi
-
-        # Actualizar el feature flag en LaunchDarkly
         curl -X PATCH \
-          "https://app.launchdarkly.com/api/v2/flags/default/version-mejorada" \
+          "https://app.launchdarkly.com/api/v2/flags/default/version-2.0-mejorada" \
           -H "Authorization: Bearer ${{ secrets.LAUNCHDARKLY_API_KEY }}" \
           -H "Content-Type: application/json" \
           -d '{
@@ -32,7 +24,7 @@ jobs:
                   {
                     "op": "replace",
                     "path": "/environments/production/on",
-                    "value": '"$flag_value"'
+                    "value": true
                   }
                 ]
               }'
