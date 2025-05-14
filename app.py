@@ -1,9 +1,13 @@
+import sys
+import threading
 import ldclient
 from ldclient.config import Config
+from ldclient.context import Context
 
-# Configuración del cliente de LaunchDarkly
-LD_SDK_KEY = "api-762d01a3-9601-4a57-b688-a16f0447d961"  # Reemplaza con tu clave de SDK
-ld_client = ldclient.LDClient(LD_SDK_KEY)
+LD_SDK_KEY = "sdk-b03a7264-8a0d-432f-b575-25f98403b8f0"  # Reemplaza con tu SDK Key real
+
+# Crear el cliente con configuración
+ld_client = ldclient.LDClient(Config(LD_SDK_KEY))
 
 def main_v1():
     nombre = input("¿Cuál es tu nombre? ")
@@ -33,16 +37,34 @@ def main_v2():
     print(saludo)
     print(f"[Registro] Idioma seleccionado: {lang}, Nombre ingresado: {nombre}")
 
+def close_client():
+    print("\nCerrando conexión con LaunchDarkly...")
+    ld_client.close()
+    print("Conexión cerrada.")
+
 # Ejecución principal
 if __name__ == "__main__":
-    user = {"key": "User-16052025"}  # Identificador del usuario
-    feature_flag_key = "version-2.0-mejorada"
+    try:
+        # Crear un contexto de usuario válido
+        user_context = Context.builder("usuario-123") \
+            .name("Usuario de prueba") \
+            .set("role", "tester") \
+            .build()
 
-    # Verificar el estado del feature flag
-    if ld_client.variation(feature_flag_key, user, False):
-        main_v2()
-    else:
-        main_v1()
+        # Obtener el valor del flag desde LaunchDarkly
+        version_mejorada = ld_client.variation("version-2.0-mejorada", user_context, False)
+        print(f"Resultado del flag: {version_mejorada}")
 
-    # Cerrar el cliente de LaunchDarkly
-    ld_client.close()
+        if version_mejorada:
+            print("Ejecutando la Versión 2.0 - Mejorada")
+            main_v2()
+        else:
+            print("Ejecutando la Versión 1.0 - Básica")
+            main_v1()
+        
+        print("\nEjecución completada.")
+
+    finally:
+        # Cerrar el cliente en un hilo separado para evitar bloqueos
+        threading.Thread(target=close_client, daemon=True).start()
+        sys.stdout.flush()
