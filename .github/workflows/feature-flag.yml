@@ -15,7 +15,9 @@ jobs:
 
     - name: Activar la versión 2.0 mejorada
       run: |
-        curl -X PATCH \
+        echo "Ejecutando actualización de flag..."
+
+        RESPONSE=$(curl -s -w "\n%{http_code}" -X PATCH \
           "https://app.launchdarkly.com/api/v2/flags/default/version-2.0-mejorada" \
           -H "Authorization: Bearer ${{ secrets.LAUNCHDARKLY_API_KEY }}" \
           -H "Content-Type: application/json" \
@@ -27,4 +29,7 @@ jobs:
                     "value": true
                   }
                 ]
-              }'
+              }')
+
+        echo "Respuesta del servidor:"
+        echo "$RESPONSE"
