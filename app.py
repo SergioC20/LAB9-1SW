@@ -4,7 +4,7 @@ import ldclient
 from ldclient.config import Config
 from ldclient.context import Context
 
-LD_SDK_KEY = "sdk-b03a7264-8a0d-432f-b575-25f98403b8f0"  # Reemplaza con tu SDK Key real
+LD_SDK_KEY = "sdk-b03a7264-8a0d-432f-b575-25f98403b8f0"  
 
 # Crear el cliente con configuración
 ld_client = ldclient.LDClient(Config(LD_SDK_KEY))
